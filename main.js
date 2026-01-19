@@ -33,7 +33,7 @@ function urlBase64ToUint8Array(base64String) {
 
 async function registerSW() {
   if (!("serviceWorker" in navigator)) throw new Error("Tu navegador no soporta Service Worker");
-  return navigator.serviceWorker.register("/notificacion-tiempo-real/sw.js");
+  return navigator.serviceWorker.register("/notificacion-tiempo-real/swV3.js");
 }
 
 async function enablePush() {
