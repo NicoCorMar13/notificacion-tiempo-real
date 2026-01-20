@@ -59,3 +59,18 @@ button {
     color:#666;
     font-size: 14px;
 }
+
+/* Móvil: el día arriba, y debajo input + botón */
+@media (max-width: 600px) {
+  .row {
+    grid-template-columns: 1fr 110px; /* input grande + botón */
+    grid-template-areas:
+      "day day"
+      "input btn";
+    gap: 10px;
+  }
+
+  .row > div:first-child { grid-area: day; }      /* el label (día) */
+  .row input { grid-area: input; width: 100%; }
+  .row button { grid-area: btn; width: 100%; }
+}
