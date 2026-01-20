@@ -1,7 +1,7 @@
 const DIAS = ["Lunes","Martes","Miércoles","Jueves","Viernes","Sábado","Domingo"];
 
 // 1) URL de tu backend en Vercel (la pondremos luego)
-const API_BASE = "https://notificacion-tiempo-real-backend.vercel.app";
+const API_BASE = "https://notificacion-tiempo-real-backend-we.vercel.app";
 
 // 2) Tu VAPID PUBLIC KEY (la pondremos luego)
 const VAPID_PUBLIC_KEY = "BBbV8RuSxZyOGAtD53suSbyp-QoE1H6WhI6Wy7rL0RINNsbI2OYtXOHFn3YU8bIEU4lsOW1rQW1laZOx2AAvee4";
