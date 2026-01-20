@@ -1,9 +1,9 @@
 const DIAS = ["Lunes","Martes","Miércoles","Jueves","Viernes","Sábado","Domingo"];
 
-// 1) URL de tu backend en Vercel (la pondremos luego)
+// URL del backend en Vercel
 const API_BASE = "https://notificacion-tiempo-real-backend-we.vercel.app";
 
-// 2) Tu VAPID PUBLIC KEY (la pondremos luego)
+// VAPID PUBLIC KEY generada para este proyecto
 const VAPID_PUBLIC_KEY = "BBbV8RuSxZyOGAtD53suSbyp-QoE1H6WhI6Wy7rL0RINNsbI2OYtXOHFn3YU8bIEU4lsOW1rQW1laZOx2AAvee4";
 
 const famInput = document.getElementById("fam");
@@ -65,6 +65,7 @@ async function enablePush() {
   alert("Notificaciones activadas ✅");
 }
 
+// Creamos los elementos para los dias de la semana
 function renderInputs() {
   list.innerHTML = "";
   DIAS.forEach(dia => {
@@ -86,6 +87,7 @@ function renderInputs() {
   });
 }
 
+// Carga la planificación desde el backend
 async function loadPlanning() {
   const fam = getFam();
   if (!fam) return;
@@ -96,7 +98,8 @@ async function loadPlanning() {
 
   DIAS.forEach(d => {
     const el = document.getElementById(d);
-    if (el) el.value = data[d] || "";
+    if (el && document.activeElement !== el)
+      el.value = data[d] || "";
   });
 
   // Si se abre desde notificación con ?dia=...
@@ -112,6 +115,7 @@ async function loadPlanning() {
   }
 }
 
+// Guarda el valor de un día en el backend
 async function saveDay(dia) {
   const fam = getFam();
   if (!fam) return alert("Primero guarda el código de familia.");
@@ -139,6 +143,7 @@ async function saveDay(dia) {
   await loadPlanning();
 }
 
+// Evento de boton que establece el código de familia
 btnSetFam.addEventListener("click", async () => {
   const v = famInput.value.trim();
   if (!v) return alert("Pega un código de familia.");
@@ -146,8 +151,10 @@ btnSetFam.addEventListener("click", async () => {
   await loadPlanning();
 });
 
+// Evento de boton que activa las notificaciones push
 btnPush.addEventListener("click", enablePush);
 
+// Inicialización
 (function init() {
   renderInputs();
 
@@ -160,6 +167,6 @@ btnPush.addEventListener("click", enablePush);
     loadPlanning();
   }
 
-  // “casi” tiempo real gratis: polling cada 5s
-  setInterval(loadPlanning, 5000);
+  /*// “casi” tiempo real gratis: polling cada 5s
+  setInterval(loadPlanning, 5000);*/
 })();
