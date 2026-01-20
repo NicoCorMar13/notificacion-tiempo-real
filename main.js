@@ -6,6 +6,7 @@ const API_BASE = "https://notificacion-tiempo-real-backend-we.vercel.app";
 // VAPID PUBLIC KEY generada para este proyecto
 const VAPID_PUBLIC_KEY = "BBbV8RuSxZyOGAtD53suSbyp-QoE1H6WhI6Wy7rL0RINNsbI2OYtXOHFn3YU8bIEU4lsOW1rQW1laZOx2AAvee4";
 
+// Elementos del DOM
 const famInput = document.getElementById("fam");
 const btnSetFam = document.getElementById("btnSetFam");
 const btnPush = document.getElementById("btnPush");
@@ -15,6 +16,7 @@ const list = document.getElementById("list");
 const deviceId = localStorage.getItem("deviceId") || (crypto.randomUUID ? crypto.randomUUID() : String(Math.random()).slice(2));
 localStorage.setItem("deviceId", deviceId);
 
+// Funciones para obtener/guardar el código de familia en localStorage
 function getFam() {
   return localStorage.getItem("fam") || "";
 }
@@ -22,6 +24,7 @@ function setFam(v) {
   localStorage.setItem("fam", v);
 }
 
+// Convierte una clave VAPID en formato base64 a Uint8Array
 function urlBase64ToUint8Array(base64String) {
   const padding = "=".repeat((4 - (base64String.length % 4)) % 4);
   const base64 = (base64String + padding).replace(/-/g, "+").replace(/_/g, "/");
@@ -31,11 +34,13 @@ function urlBase64ToUint8Array(base64String) {
   return out;
 }
 
+// Registra el Service Worker
 async function registerSW() {
   if (!("serviceWorker" in navigator)) throw new Error("Tu navegador no soporta Service Worker");
   return navigator.serviceWorker.register("/notificacion-tiempo-real/swV3.js");
 }
 
+// Habilita las notificaciones push
 async function enablePush() {
   const fam = getFam();
   if (!fam) return alert("Primero guarda el código de familia.");

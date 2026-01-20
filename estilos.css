@@ -13,15 +13,27 @@ body {
     margin: 10px 0;
 }
 
+/*Estilo general de inputs (sin forzar ancho)*/
 input { 
     padding: 10px;
     font-size: 16px;
+    box-sizing: border-box;
+}
+
+/*Solo el input del planing (dentro de cada row) ocupa todo su hueco*/
+.row input {
     width: 100%;
+    min-width: 0;/*Clave para que no empuje*/
 }
 
 button { 
     padding: 10px;
     cursor: pointer;
+}
+
+/*Hacemos que el boton ocupe su columna*/
+.row button {
+    width: 100%;
 }
 
 .top { 
