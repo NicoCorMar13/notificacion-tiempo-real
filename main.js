@@ -173,6 +173,50 @@ btnSetFam.addEventListener("click", async () => {
 // Evento de boton que activa las notificaciones push
 btnPush.addEventListener("click", enablePush);
 
+function applyRemoteUpdate(msg) {
+  if (!msg || msg.type !== "planning-updated") return;
+
+  // Si quieres, ignora si es de otra familia (opcional pero recomendable)
+  const fam = getFam();
+  if (msg.fam && fam && msg.fam !== fam) return;
+
+  if (!msg.dia || !DIAS.includes(msg.dia)) return;
+
+  const el = document.getElementById(msg.dia);
+  if (!el) return;
+
+  // No pisar si justo lo estás editando
+  if (document.activeElement === el) return;
+
+  // Actualiza el valor del día que cambió
+  if (typeof msg.value === "string") {
+    el.value = msg.value;
+  } else {
+    // fallback si por lo que sea no vino value
+    loadPlanning();
+    return;
+  }
+
+  // opcional: resaltado “in-app”
+  el.classList.add("highlight");
+  setTimeout(() => el.classList.remove("highlight"), 1500);
+}
+
+function setupSWMessageListener() {
+  if (!("serviceWorker" in navigator)) return;
+
+  navigator.serviceWorker.addEventListener("message", (event) => {
+    applyRemoteUpdate(event.data);
+  });
+
+  // Por si el SW se actualiza y cambia el controller
+  navigator.serviceWorker.addEventListener("controllerchange", () => {
+    // no hace falta recargar; solo informativo
+    console.log("SW controller changed");
+  });
+}
+
+
 // Inicialización automatica al cargar la página
 (function init() {//Función autoejecutable para inicializar la app
   renderInputs();//Crea los inputs para los días de la semana

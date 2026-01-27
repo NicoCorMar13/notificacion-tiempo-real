@@ -30,7 +30,7 @@ export default async function handler(req, res) {
 
   //Todo el acceso a la base de datos va dentro de este try/catch para manejar errores
   try {
-    const supabase = getSupabase;//Crea el cliente de Supabase usando las variables de entorno para interactuar con la base de datos
+    const supabase = getSupabase();//Crea el cliente de Supabase usando las variables de entorno para interactuar con la base de datos
 
     const { fam, subscription, deviceId } = req.body || {};//Obtiene los datos enviados en el cuerpo de la petición: fam(código de familia), subscription(datos de la suscripción push), deviceId(identificador del dispositivo para evitar auto-notificaciones)
     //Si falta alguno de los datos necesarios, responde con error 400

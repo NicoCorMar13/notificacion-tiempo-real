@@ -12,7 +12,22 @@ self.addEventListener("push", (event) => {
     ],
   };
 
-  event.waitUntil(self.registration.showNotification(title, options));//Muestra la notificación, "waitUntil" asegura que el SW no se cierre antes de mostrarla
+  event.waitUntil((async () => {
+    //Primero mostramos la notificación
+    await self.registration.showNotification(title, options);
+
+    //Despues notificamos a la página abierta (si hay) sobre la actualización del planning(no recarga la página, solo avisa)
+    const wins = await clients.matchAll({ type: "window", includeUncontrolled: true });
+    for (const c of wins) {
+      c.postMessage({
+        type: data.type || "planning-updated",
+        fam: data.fam,
+        dia: data.dia,
+        value: data.value,
+        url: data.url
+      });
+    }
+  })());
 });
 
 // Maneja el clic en la notificación

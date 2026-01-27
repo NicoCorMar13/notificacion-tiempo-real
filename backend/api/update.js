@@ -80,6 +80,10 @@ export default async function handler(req, res) {
 
     // Prepara el payload de la notificación
     const payload = JSON.stringify({
+      type: "planning-update",
+      fam,
+      dia,
+      value: String(value ?? ""),
       title: "Planning actualizado",//Título de la notificación
       body: `Se actualizó ${dia}`,//Cuerpo de la notificación
       url: url || `./?dia=${encodeURIComponent(dia)}`//URL a abrir al hacer clic en la notificación
