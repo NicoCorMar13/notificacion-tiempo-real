@@ -3,9 +3,13 @@ self.addEventListener("push", (event) => {
   const data = event.data ? event.data.json() : {};//Obtiene los datos del push
   const title = data.title || "Planning actualizado";//Título de la notificación
   const options = {//Opciones de la notificación
-    body: data.body || "Se ha modificado el planning",//Cuerpo de la notificación
+    body: data.body || "",//Cuerpo de la notificación
     icon: "/notificacion-tiempo-real/icono-192.png",//Icono de la notificación
-    data: { url: data.url || "./" }//Datos adicionales, como la URL a abrir al hacer clic
+    tag: data.tag || "planing",//Etiqueta para agrupar notificaciones similares
+    data: { url: data.url || "./" },//Datos adicionales, como la URL a abrir al hacer clic
+    actions: [
+      { action: 'open', title: 'Abrir App', icon: '/notificacion-tiempo-real/icono-192.png' }
+    ],
   };
 
   event.waitUntil(self.registration.showNotification(title, options));//Muestra la notificación, "waitUntil" asegura que el SW no se cierre antes de mostrarla
