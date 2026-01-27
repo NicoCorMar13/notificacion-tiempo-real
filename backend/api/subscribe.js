@@ -5,6 +5,7 @@ import { createClient } from "@supabase/supabase-js";//Importa la librería de S
 // Funcion auxiliar para habilitar CORS y permitir peticiones desde el frontend
 function enableCors(req, res) {
   res.setHeader("Access-Control-Allow-Origin", process.env.ALLOWED_ORIGIN || "*");//Permite peticiones desde el origen especificado en las variables de entorno, o desde cualquier origen si no está definido
+  res.setHeader("Vary", "Origin");//Indica que la respuesta puede variar según el origen de la petición
   res.setHeader("Access-Control-Allow-Methods", "GET,POST,OPTIONS");//Permite estos métodos HTTP
   res.setHeader("Access-Control-Allow-Headers", "Content-Type");//Permite este encabezado específico, necesario para peticiones con cuerpo JSON
 }
