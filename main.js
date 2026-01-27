@@ -1,5 +1,3 @@
-import { register } from "module";
-
 const DIAS = ["Lunes","Martes","Miércoles","Jueves","Viernes","Sábado","Domingo"];
 
 // URL del backend en Vercel
