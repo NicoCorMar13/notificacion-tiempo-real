@@ -1,3 +1,5 @@
+import { register } from "module";
+
 const DIAS = ["Lunes","Martes","Miércoles","Jueves","Viernes","Sábado","Domingo"];
 
 // URL del backend en Vercel
@@ -206,6 +208,7 @@ function setupSWMessageListener() {
   if (!("serviceWorker" in navigator)) return;
 
   navigator.serviceWorker.addEventListener("message", (event) => {
+    console.log("[PAGE] mensaje recibido del SW:", event.data);
     applyRemoteUpdate(event.data);
   });
 
@@ -218,8 +221,17 @@ function setupSWMessageListener() {
 
 
 // Inicialización automatica al cargar la página
-(function init() {//Función autoejecutable para inicializar la app
+(async function init() {//Función autoejecutable para inicializar la app
   renderInputs();//Crea los inputs para los días de la semana
+  setupSWMessageListener();//Configura el listener para mensajes del Service Worker
+
+  try {
+    await registerSW();//Intenta registrar el Service Worker
+    const reg = await navigator.serviceWorker.ready;//Espera a que el Service Worker esté listo
+    console.log("[PAGE] SW listo. Controlador:", !!navigator.serviceWorker.controller, reg);
+  } catch(e) {
+    console.warn("[PAGE] Error registrando SW:", e);
+  }
 
   // Si no hay familia guardada, sugerimos una (la compartes con tu familia)
   if (!getFam()) {
