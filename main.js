@@ -1,3 +1,5 @@
+import { register } from "module";
+
 const DIAS = ["Lunes","Martes","Miércoles","Jueves","Viernes","Sábado","Domingo"];
 
 // URL del backend en Vercel
@@ -225,6 +227,22 @@ function setupSWMessageListener() {
 
   try {
     await registerSW();//Intenta registrar el Service Worker
+    async function ensureSWControlsPage() {
+      if (!("serviceWorker" in navigator)) return;
+      if (navigator.serviceWorker.controller) return;
+
+      await navigator.serviceWorker.ready;
+
+      await new Promise((resolve) => {
+        navigator.serviceWorker.addEventListener("controllerchange", resolve, { once: true });
+      });
+
+      if (!sessionStorage.getItem("sw_reloaded_once")) {
+        sessionStorage.setItem("sw_reloaded_once", "1");
+        location.reload();
+      }
+    }
+
     const reg = await navigator.serviceWorker.ready;//Espera a que el Service Worker esté listo
     console.log("[PAGE] SW listo. Controlador:", !!navigator.serviceWorker.controller, reg);
   } catch(e) {
@@ -239,6 +257,9 @@ function setupSWMessageListener() {
     famInput.value = getFam();
     loadPlanning();
   }
+
+  await registerSW();
+  await ensureSWControlsPage();
 
   /*// “casi” tiempo real gratis: polling cada 5s
   setInterval(loadPlanning, 5000);
