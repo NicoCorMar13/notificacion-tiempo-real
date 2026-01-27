@@ -4,31 +4,40 @@ import { createClient } from "@supabase/supabase-js";//Importa la librería de S
 
 // Funcion auxiliar para habilitar CORS y permitir peticiones desde el frontend
 function enableCors(req, res) {
-  res.setHeader("Access-Control-Allow-Origin", "https://nicocormar13.github.io");//Permite peticiones desde este origen específico
+  res.setHeader("Access-Control-Allow-Origin", process.env.ALLOWED_ORIGIN || "*");//Permite peticiones desde el origen especificado en las variables de entorno, o desde cualquier origen si no está definido
   res.setHeader("Access-Control-Allow-Methods", "GET,POST,OPTIONS");//Permite estos métodos HTTP
   res.setHeader("Access-Control-Allow-Headers", "Content-Type");//Permite este encabezado específico, necesario para peticiones con cuerpo JSON
 }
 
+function getSupabase() {
+  const url = process.env.SUPABASE_URL;
+  const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  if (!url || !key) throw new Error("Missing SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY");
+  return createClient(url, key);
+}
+
 //Manejador de la API, exportador del handler por defecto(endpoint)
 export default async function handler(req, res) {
-    enableCors(req, res);//Aplica CORS a la respuesta en cada petición
+  enableCors(req, res);//Aplica CORS a la respuesta en cada petición
 
   // Maneja peticiones OPTIONS para CORS preflight, evitamos errores con esto, porque sin esto el navegador bloquearia el POST
-    if (req.method === "OPTIONS") {
-    return res.status(200).end();
-  }
+  if (req.method === "OPTIONS") return res.status(200).end();
+
+  if (req.method === "GET") return res.status(200).json({ ok: true,message: "subscribe endpoint up" });//Responde a peticiones GET con un mensaje informativo
 
   if (req.method !== "POST") return res.status(405).json({ error: "Method not allowed" });//Solo permite método POST para este endpoint
 
   //Todo el acceso a la base de datos va dentro de este try/catch para manejar errores
   try {
+    const supabase = getSupabase;//Crea el cliente de Supabase usando las variables de entorno para interactuar con la base de datos
+
     const { fam, subscription, deviceId } = req.body || {};//Obtiene los datos enviados en el cuerpo de la petición: fam(código de familia), subscription(datos de la suscripción push), deviceId(identificador del dispositivo para evitar auto-notificaciones)
     //Si falta alguno de los datos necesarios, responde con error 400
-    if (!fam || !subscription?.endpoint || !subscription?.keys?.p256dh || !subscription?.keys?.auth) {
-      return res.status(400).json({ error: "Missing fam/subscription" });
+    if (!fam || !subscription || !deviceId) {
+      return res.status(400).json({ error: "Missing fam/subscription/deviceId" });
     }
 
-    const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SERVICE_ROLE_KEY);//Crea el cliente de Supabase usando las variables de entorno para interactuar con la base de datos
+    await supabase.from("families").upsert([{ fam }], { onConflict: "fam" });//Asegura que la familia exista
 
     // Prepara los datos a insertar o actualizar en la tabla "subscriptions"
     const payload = {
