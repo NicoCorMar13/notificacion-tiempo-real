@@ -3,11 +3,12 @@
 import { createClient } from "@supabase/supabase-js";//Importa la librería de Supabase para interactuar con la base de datos
 import webpush from "web-push";//Importa la librería web-push para enviar notificaciones push a los navegadores
 
-// Habilita CORS para permitir peticiones desde el frontend
+// Funcion auxiliar para habilitar CORS y permitir peticiones desde el frontend
 function enableCors(req, res) {
-  res.setHeader("Access-Control-Allow-Origin", "https://nicocormar13.github.io");
-  res.setHeader("Access-Control-Allow-Methods", "GET,POST,OPTIONS");
-  res.setHeader("Access-Control-Allow-Headers", "Content-Type");
+  res.setHeader("Access-Control-Allow-Origin", process.env.ALLOWED_ORIGIN || "*");//Permite peticiones desde el origen especificado en las variables de entorno, o desde cualquier origen si no está definido
+  res.setHeader("Vary", "Origin");//Indica que la respuesta puede variar según el origen de la petición
+  res.setHeader("Access-Control-Allow-Methods", "GET,POST,OPTIONS");//Permite estos métodos HTTP
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type");//Permite este encabezado específico, necesario para peticiones con cuerpo JSON
 }
 
 // Días válidos para el planning
