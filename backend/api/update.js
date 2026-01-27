@@ -14,6 +14,13 @@ function enableCors(req, res) {
 // Días válidos para el planning
 const DIAS = ["Lunes","Martes","Miércoles","Jueves","Viernes","Sábado","Domingo"];
 
+function getSupabase() {
+  const url = process.env.SUPABASE_URL;
+  const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  if (!url || !key) throw new Error("Missing SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY");
+  return createClient(url, key);
+}
+
 // Configura las claves VAPID para web-push desde las variables de entorno
 webpush.setVapidDetails(
   process.env.VAPID_SUBJECT,
@@ -30,6 +37,9 @@ export default async function handler(req, res) {
     return res.status(200).end();
   }
 
+  // Ping útil para probar en navegador sin 500
+  if (req.method === "GET") return res.status(200).json({ ok: true, msg: "notify endpoint up" });
+
   // Solo permite método POST para este endpoint
   if (req.method !== "POST") return res.status(405).json({ error: "Method not allowed" });
 
@@ -39,7 +49,7 @@ export default async function handler(req, res) {
     if (!fam || !DIAS.includes(dia)) return res.status(400).json({ error: "Missing fam or invalid dia" });//Si falta el código de familia o el día es inválido, responde con error 400
 
     // Crea el cliente de Supabase usando las variables de entorno
-    const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SERVICE_ROLE_KEY);
+    const supabase = getSupabase();
 
     // Leemos el planning actual
     const { data: row, error: selErr } = await supabase
@@ -49,7 +59,7 @@ export default async function handler(req, res) {
       .maybeSingle();
     if (selErr) throw selErr;//Si hay error en la consulta, lo lanza para ser capturado por el catch
 
-    const current = row?.data || {};//ºObtiene los datos actuales del planning o un objeto vacío si no existen
+    const current = row?.data || {};//Obtiene los datos actuales del planning o un objeto vacío si no existen
     const next = { ...current, [dia]: String(value ?? "") };//Crea el nuevo objeto de planning con el día actualizado
 
     // Guardamos el planning
