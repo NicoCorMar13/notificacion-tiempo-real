@@ -45,7 +45,7 @@ export default async function handler(req, res) {
       .order("created_at", { ascending: true });
     if (chErr) throw chErr;
 
-    let out = changes || [];
+    let out = (changes || []).filter(c => c.actor_device_id !== viewerDeviceId);
 
     // mode opcional: "last_per_day" => solo la última por día
     if (mode === "last_per_day") {

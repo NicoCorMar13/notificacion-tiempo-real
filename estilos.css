@@ -126,6 +126,32 @@ button.x{
     cursor:pointer; 
 }
 
+.group { 
+    margin: 10px 0; 
+}
+
+.group summary {
+  cursor: pointer;
+  padding: 10px;
+  border: 1px solid #eee;
+  border-radius: 10px;
+  list-style: none;
+}
+
+.group summary::-webkit-details-marker { 
+    display: none; 
+}
+
+.group .count { 
+    opacity: .65; 
+    font-weight: 500; 
+    margin-left: 6px; 
+}
+
+.group-body { 
+    margin-top: 8px; 
+}
+
 /* Móvil: el día arriba, y debajo input + botón */
 @media (max-width: 600px) {
   .row {

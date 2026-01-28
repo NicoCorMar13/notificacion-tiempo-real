@@ -227,22 +227,53 @@ function fmtTime(iso) {
   return d.toLocaleString("es-ES", { dateStyle: "short", timeStyle: "short" });
 }
 
-function openChangesModal(changes, onClose) {
+function openChangesModalGrouped(changes, onClose) {
   const modal = document.getElementById("changesModal");
   const body = document.getElementById("changesBody");
   const closeBtn = document.getElementById("changesClose");
   const okBtn = document.getElementById("changesOk");
 
-  body.innerHTML = changes.map(c => `
-    <div class="item">
-      <div><b>${escapeHtml(c.dia)}</b></div>
-      <div>
-        ${c.old_value !== null ? `Antes: <i>${escapeHtml(c.old_value || "(vacío)")}</i><br>` : ""}
-        Ahora: <b>${escapeHtml(c.new_value || "(vacío)")}</b>
+  const groups = new Map();
+  for (const c of changes) {
+    const key = c.dia || "(sin día)";
+    if (!groups.has(key)) groups.set(key, []);
+    groups.get(key).push(c);
+  }
+
+  const orderedDays = Array.from(groups.keys()).sort((a, b) => {
+    const ia = DIAS.indexOf(a);
+    const ib = DIAS.indexOf(b);
+    if (ia === -1 && ib === -1) return a.localeCompare(b);
+    if (ia === -1) return 1;
+    if (ib === -1) return -1;
+    return ia - ib;
+  });
+
+  body.innerHTML = orderedDays.map(dia => {
+    const list = groups.get(dia) || [];
+    const count = list.length;
+
+    list.sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
+
+    const itemsHtml = list.map(c => `
+      <div class="item">
+        <div>
+          ${c.old_value !== null ? `Antes: <i>${escapeHtml(c.old_value || "(vacío)")}</i><br>` : ""}
+          Ahora: <b>${escapeHtml(c.new_value || "(vacío)")}</b>
+        </div>
+        <div class="meta">${fmtTime(c.created_at)}</div>
       </div>
-      <div class="meta">${fmtTime(c.created_at)}</div>
-    </div>
-  `).join("");
+    `).join("");
+
+    return `
+      <details class="group" open>
+        <summary><b>${escapeHtml(dia)}</b> <span class="count">(${count} cambio${count !== 1 ? "s" : ""})</span></summary>
+        <div class="group-body">
+          ${itemsHtml}
+        </div>
+      </details>
+    `;
+  }).join("");
 
   modal.classList.remove("hidden");
 
@@ -257,6 +288,7 @@ function openChangesModal(changes, onClose) {
   okBtn.addEventListener("click", close);
 }
 
+
 async function checkChangesOnLoad() {
   const fam = getFam();
   if (!fam) return;
@@ -267,7 +299,7 @@ async function checkChangesOnLoad() {
     body: JSON.stringify({
       fam,
       viewerDeviceId: deviceId,
-      mode: "last_per_day" // pon "all" si quieres ver TODAS las modificaciones
+      mode: "all" // o "last_per_day" si lo mantuviste en backend
     })
   });
 
@@ -278,11 +310,19 @@ async function checkChangesOnLoad() {
   }
 
   if ((j.count || 0) > 0) {
-    openChangesModal(j.changes, async () => {
+    // (3) Marcado visto perfecto (usamos el último created_at real)
+    const lastTs = j.changes[j.changes.length - 1]?.created_at;
+
+    // (2C) Usar el modal agrupado
+    openChangesModalGrouped(j.changes, async () => {
       await fetch(`${API_BASE}/api/changesSeen`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ fam, viewerDeviceId: deviceId })
+        body: JSON.stringify({
+          fam,
+          viewerDeviceId: deviceId,
+          seenAt: lastTs // <-- esto es la mejora (3)
+        })
       }).catch(console.error);
     });
   }
