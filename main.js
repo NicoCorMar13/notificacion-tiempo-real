@@ -167,10 +167,16 @@ async function saveDay(dia) {
 
 // Realtime update from SW
 function applyRemoteUpdate(msg) {
-  if (!msg || msg.type !== "planning-updated") return;
+  if (!msg) return;
 
-  const fam = getFam();
-  if (msg.fam && fam && msg.fam !== fam) return;
+  // Acepta ambos nombres
+  if (msg.type !== "planning-update") return;
+
+  const famLS = getFam();
+  const famUI = famInput?.value?.trim() || "";
+  const famActive = famLS || famUI;
+
+  if (msg.fam && famActive && msg.fam !== famActive) return;
 
   if (!msg.dia || !DIAS.includes(msg.dia)) return;
 
@@ -179,16 +185,12 @@ function applyRemoteUpdate(msg) {
 
   if (document.activeElement === el) return;
 
-  if (typeof msg.value === "string") {
-    el.value = msg.value;
-  } else {
-    loadPlanning();
-    return;
-  }
+  el.value = String(msg.value ?? "");
 
   el.classList.add("highlight");
   setTimeout(() => el.classList.remove("highlight"), 1200);
 }
+
 
 function setupSWMessageListener() {
   if (!("serviceWorker" in navigator)) return;

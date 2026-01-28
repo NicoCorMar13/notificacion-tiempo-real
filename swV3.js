@@ -31,7 +31,7 @@ self.addEventListener("push", (event) => {
 
     for (const c of wins) {
       c.postMessage({
-        type: data.type || "planning-updated",
+        type: data.type || "planning-update",
         fam: data.fam,
         dia: data.dia,
         value: data.value,
