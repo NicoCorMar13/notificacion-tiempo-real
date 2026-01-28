@@ -232,3 +232,20 @@ btnPush.addEventListener("click", enablePush);
     loadPlanning();
   }
 })();
+
+function debugOnScreen(obj) {
+  const box = document.getElementById("debugBox");
+  if (!box) return;
+  box.style.display = "block";
+  box.textContent = JSON.stringify(obj, null, 2);
+}
+
+function setupSWMessageListener() {
+  if (!("serviceWorker" in navigator)) return;
+
+  navigator.serviceWorker.addEventListener("message", (event) => {
+    debugOnScreen({ from: "SW", at: new Date().toISOString(), data: event.data });
+    applyRemoteUpdate(event.data);
+  });
+}
+
