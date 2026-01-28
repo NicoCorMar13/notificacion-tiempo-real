@@ -23,7 +23,20 @@
   </p>
 
   <div id="list"></div>
-  
+
+  <div id="changesModal" class="modal hidden" role="dialog" aria-modal="true">
+    <div class="modal-card">
+      <div class="modal-head">
+        <h3>Cambios desde tu última visita</h3>
+        <button id="changesClose" class="x">✕</button>
+      </div>
+      <div id="changesBody" class="modal-body"></div>
+      <div class="modal-foot">
+        <button id="changesOk">Entendido</button>
+      </div>
+    </div>
+  </div>
+
   <script src="/notificacion-tiempo-real/main.js"></script>
 </body>
 </html>

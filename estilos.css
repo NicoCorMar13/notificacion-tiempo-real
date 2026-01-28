@@ -67,6 +67,65 @@ button {
     font-size: 14px;/*Tamaño de fuente más pequeño*/
 }
 
+.modal.hidden{
+    display: none; 
+}
+
+.modal{
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,.45);
+  display: grid; place-items: center;
+  z-index: 9999;
+}
+
+.modal-card{
+  width: min(680px, 92vw);
+  max-height: 78vh;
+  background: #fff;
+  border-radius: 14px;
+  overflow: hidden;
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+}
+
+.modal-head, .modal-foot{
+  padding: 12px 14px;
+  display:flex; align-items:center; justify-content: space-between;
+  border-bottom: 1px solid #eee;
+}
+
+.modal-foot{ 
+    border-top: 1px solid #eee; 
+    border-bottom: none; 
+    justify-content: flex-end; 
+    gap: 10px; 
+}
+
+.modal-body{ 
+    padding: 12px 14px; 
+    overflow: auto; 
+}
+
+.modal-body .item{ 
+    padding: 10px; 
+    border: 1px solid #eee; 
+    border-radius: 10px; 
+    margin: 8px 0; 
+}
+
+.modal-body .meta{ 
+    font-size: 12px; 
+    opacity: .7; 
+    margin-top: 6px; 
+}
+
+button.x{ 
+    border: none; 
+    background: transparent; 
+    font-size: 18px; 
+    cursor:pointer; 
+}
+
 /* Móvil: el día arriba, y debajo input + botón */
 @media (max-width: 600px) {
   .row {

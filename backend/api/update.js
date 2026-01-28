@@ -62,6 +62,22 @@ export default async function handler(req, res) {
     const current = row?.data || {};//Obtiene los datos actuales del planning o un objeto vacío si no existen
     const next = { ...current, [dia]: String(value ?? "") };//Crea el nuevo objeto de planning con el día actualizado
 
+    const oldValue = String(current?.[dia] ?? "");
+    const newValue = String(value ?? "");
+
+    // Guardar en historial SOLO si realmente cambió
+    if (oldValue !== newValue) {
+      const { error: logErr } = await supabase.from("change_log").insert({
+      fam,
+      dia,
+      old_value: oldValue,
+      new_value: newValue,
+      actor_device_id: deviceId ?? null
+      });
+    if (logErr) throw logErr;
+    }
+
+
     // Guardamos el planning
     if (!row) {//Si no existe el planning para esa familia, lo insertamos
       const { error: insErr } = await supabase.from("planning").insert({ fam, data: next });

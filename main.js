@@ -207,10 +207,86 @@ btnSetFam.addEventListener("click", async () => {
   if (!v) return alert("Pega un código de familia.");
   setFam(v);
   await loadPlanning();
+  await checkChangesOnLoad();
   alert("Código de familia guardado ✅");
 });
 
 btnPush.addEventListener("click", enablePush);
+
+function escapeHtml(s) {
+  return String(s)
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#039;");
+}
+
+function fmtTime(iso) {
+  const d = new Date(iso);
+  return d.toLocaleString("es-ES", { dateStyle: "short", timeStyle: "short" });
+}
+
+function openChangesModal(changes, onClose) {
+  const modal = document.getElementById("changesModal");
+  const body = document.getElementById("changesBody");
+  const closeBtn = document.getElementById("changesClose");
+  const okBtn = document.getElementById("changesOk");
+
+  body.innerHTML = changes.map(c => `
+    <div class="item">
+      <div><b>${escapeHtml(c.dia)}</b></div>
+      <div>
+        ${c.old_value !== null ? `Antes: <i>${escapeHtml(c.old_value || "(vacío)")}</i><br>` : ""}
+        Ahora: <b>${escapeHtml(c.new_value || "(vacío)")}</b>
+      </div>
+      <div class="meta">${fmtTime(c.created_at)}</div>
+    </div>
+  `).join("");
+
+  modal.classList.remove("hidden");
+
+  function close() {
+    modal.classList.add("hidden");
+    closeBtn.removeEventListener("click", close);
+    okBtn.removeEventListener("click", close);
+    onClose?.();
+  }
+
+  closeBtn.addEventListener("click", close);
+  okBtn.addEventListener("click", close);
+}
+
+async function checkChangesOnLoad() {
+  const fam = getFam();
+  if (!fam) return;
+
+  const r = await fetch(`${API_BASE}/api/changes`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      fam,
+      viewerDeviceId: deviceId,
+      mode: "last_per_day" // pon "all" si quieres ver TODAS las modificaciones
+    })
+  });
+
+  const j = await r.json().catch(() => ({}));
+  if (!r.ok) {
+    console.error("changes error", j);
+    return;
+  }
+
+  if ((j.count || 0) > 0) {
+    openChangesModal(j.changes, async () => {
+      await fetch(`${API_BASE}/api/changesSeen`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ fam, viewerDeviceId: deviceId })
+      }).catch(console.error);
+    });
+  }
+}
 
 // Init
 (async function init() {
@@ -231,15 +307,7 @@ btnPush.addEventListener("click", enablePush);
     famInput.value = suggested;
   } else {
     famInput.value = getFam();
-    loadPlanning();
+    await loadPlanning();
+    await checkChangesOnLoad();
   }
 })();
-
-function setupSWMessageListener() {
-  if (!("serviceWorker" in navigator)) return;
-
-  navigator.serviceWorker.addEventListener("message", (event) => {
-    applyRemoteUpdate(event.data);
-  });
-}
-
