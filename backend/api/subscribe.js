@@ -10,6 +10,7 @@ function enableCors(req, res) {
   res.setHeader("Access-Control-Allow-Headers", "Content-Type");//Permite este encabezado específico, necesario para peticiones con cuerpo JSON
 }
 
+// Funcion para crear el cliente de Supabase
 function getSupabase() {
   const url = process.env.SUPABASE_URL;
   const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
