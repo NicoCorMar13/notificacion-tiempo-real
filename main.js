@@ -163,6 +163,8 @@ async function saveDay(dia) {
   // No hace falta recargar todo aquí si luego ya te llega el postMessage en otros dispositivos,
   // pero en el que guarda, sí es útil para reflejar lo guardado.
   await loadPlanning();
+  await markChangesSeen();/*Marcamos como visto porque lo acabamos de cambiar*/
+  alert("Día guardado ✅");
 }
 
 // Realtime update from SW
@@ -189,6 +191,8 @@ function applyRemoteUpdate(msg) {
 
   el.classList.add("highlight");
   setTimeout(() => el.classList.remove("highlight"), 1200);
+
+  markChangesSeen();/*Marcamos como visto porque lo estamos viendo en pantalla*/
 }
 
 
@@ -266,7 +270,7 @@ function openChangesModalGrouped(changes, onClose) {
     `).join("");
 
     return `
-      <details class="group">
+      <details class="group">/*si ponemos open al final, vienen todos desplegados*/
         <summary><b>${escapeHtml(dia)}</b> <span class="count">(${count} cambio${count !== 1 ? "s" : ""})</span></summary>
         <div class="group-body">
           ${itemsHtml}
@@ -326,6 +330,21 @@ async function checkChangesOnLoad() {
       }).catch(console.error);
     });
   }
+}
+
+async function markChangesSeen(seenAt) {
+  const fam = getFam();
+  if (!fam) return;
+
+  await fetch(`${API_BASE}/api/changesSeen`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      fam,
+      viewerDeviceId: deviceId,
+      seenAt // opcional
+    })
+  }).catch(console.error);
 }
 
 // Init
