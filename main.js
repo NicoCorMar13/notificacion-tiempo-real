@@ -1,5 +1,3 @@
-console.log("🔥 main.js cargado");
-
 const DIAS = ["Lunes","Martes","Miércoles","Jueves","Viernes","Sábado","Domingo"];
 
 // URL del backend en Vercel
@@ -55,6 +53,16 @@ async function ensureSWControlsPage() {
     sessionStorage.setItem("sw_reloaded_once", "1");
     location.reload();
   }
+}
+
+//Funcion que comprueba si tenemos la aplicacion instalada, si es asi, elimina el banner de recomendacion de instalacion
+function isAppInstalled() {
+  return window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true; //La segunda parte (despues de ||) es para iOS
+}
+
+//Comprobamos si la aplicacion esta instalada y en ese caso eliminamos el banner de recomendacion de instalacion
+if (isAppInstalled()) {
+  document.getElementById("banner-instalar")?.remove();
 }
 
 // Push enable
@@ -331,6 +339,8 @@ async function checkChangesOnLoad() {
   }
 }
 
+/* Marca cambios como vistos si estamos con la aplicacion abierta. Implementado en saveDay y applyRemoteUpdate. 
+Si queremos que se vea el dialogo con los cambios cuando se recargue la app quitar la llamada a esta funcion en las funciones saveDay y applyRemoteUpdate*/
 async function markChangesSeen(seenAt) {
   const fam = getFam();
   if (!fam) return;
