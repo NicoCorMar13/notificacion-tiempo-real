@@ -1,9 +1,12 @@
-self.addEventListener("install", () => self.skipWaiting());
+// swV3.js - Service Worker para notificaciones push y mensajería con ventanas abiertas
+self.addEventListener("install", () => self.skipWaiting());//Instala el Service Worker inmediatamente
 
+// Toma el control de las páginas abiertas inmediatamente después de la activación
 self.addEventListener("activate", (event) => {
   event.waitUntil(self.clients.claim());
 });
 
+// Maneja los eventos de push entrantes
 self.addEventListener("push", (event) => {
   const data = event.data ? event.data.json() : {};
 
@@ -25,8 +28,7 @@ self.addEventListener("push", (event) => {
     // 2) Mensaje a ventanas abiertas
     const wins = await clients.matchAll({ type: "window", includeUncontrolled: true });
 
-    // DEBUG: para ver si hay ventanas
-    // (esto se ve en DevTools > Application > Service Workers)
+    // DEBUG: para ver si hay ventanas abiertas y los datos recibidos
     console.log("[SW] push received. windows:", wins.length, "data:", data);
 
     for (const c of wins) {
@@ -41,6 +43,7 @@ self.addEventListener("push", (event) => {
   })());
 });
 
+// Maneja el clic en la notificación
 self.addEventListener("notificationclick", (event) => {
   event.notification.close();
   const url = event.notification.data?.url || "./";
