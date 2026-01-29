@@ -266,7 +266,7 @@ function openChangesModalGrouped(changes, onClose) {
     `).join("");
 
     return `
-      <details class="group" open>
+      <details class="group">
         <summary><b>${escapeHtml(dia)}</b> <span class="count">(${count} cambio${count !== 1 ? "s" : ""})</span></summary>
         <div class="group-body">
           ${itemsHtml}

@@ -132,14 +132,34 @@ button.x{
 
 .group summary {
   cursor: pointer;
-  padding: 10px;
+  padding: 10px 38px 10px 10px;
   border: 1px solid #eee;
   border-radius: 10px;
   list-style: none;
+  position: relative;
 }
 
+/* Oculta el marcador por defecto de los detalles*/
 .group summary::-webkit-details-marker { 
     display: none; 
+}
+
+/* Flecha personalizada */
+.group summary::after {
+  content: "▾"; /* Flecha hacia la derecha */
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%) rotate(-90deg);/*Cerrado apuntando a la derecha*/
+  opacity: .7;
+  transition: transform 0.2s ease; /* Animación suave */
+  font-size: 14px;
+}
+
+/* Cuando el grupo está abierto, rota la flecha hacia abajo */
+.group[open] summary::after {
+  transform: translateY(-50%) rotate(0deg);
+  opacity: .9;
 }
 
 .group .count { 
