@@ -164,7 +164,6 @@ async function saveDay(dia) {
   // pero en el que guarda, sí es útil para reflejar lo guardado.
   await loadPlanning();
   await markChangesSeen();/*Marcamos como visto porque lo acabamos de cambiar*/
-  alert("Día guardado ✅");
 }
 
 // Realtime update from SW
