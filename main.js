@@ -6,23 +6,23 @@ const API_BASE = "https://notificacion-tiempo-real-backend-we.vercel.app";
 // VAPID PUBLIC KEY
 const VAPID_PUBLIC_KEY = "BBbV8RuSxZyOGAtD53suSbyp-QoE1H6WhI6Wy7rL0RINNsbI2OYtXOHFn3YU8bIEU4lsOW1rQW1laZOx2AAvee4";
 
-// DOM
+// Obtenemos referencias a los elementos del DOM
 const famInput = document.getElementById("fam");
 const btnSetFam = document.getElementById("btnSetFam");
 const btnPush = document.getElementById("btnPush");
 const list = document.getElementById("list");
 
-// deviceId
+// Consultamos el codigo unico del dispositivo o lo generamos
 const deviceId =
   localStorage.getItem("deviceId") ||
   (crypto.randomUUID ? crypto.randomUUID() : String(Math.random()).slice(2));
 localStorage.setItem("deviceId", deviceId);
 
-// fam storage
+// funciones para el almacenamiento del código de familia
 function getFam() { return localStorage.getItem("fam") || ""; }
 function setFam(v) { localStorage.setItem("fam", v); }
 
-// VAPID helper
+// Convertimos la VAPID key de base64 a Uint8Array
 function urlBase64ToUint8Array(base64String) {
   const padding = "=".repeat((4 - (base64String.length % 4)) % 4);
   const base64 = (base64String + padding).replace(/-/g, "+").replace(/_/g, "/");
@@ -32,7 +32,7 @@ function urlBase64ToUint8Array(base64String) {
   return out;
 }
 
-// Register SW
+// Registramos el Service Worker
 async function registerSW() {
   if (!("serviceWorker" in navigator)) throw new Error("Tu navegador no soporta Service Worker");
   return navigator.serviceWorker.register("/notificacion-tiempo-real/swV3.js");
@@ -55,7 +55,7 @@ async function ensureSWControlsPage() {
   }
 }
 
-//Funcion que comprueba si tenemos la aplicacion instalada, si es asi, elimina el banner de recomendacion de instalacion
+//Funcion que comprueba si tenemos la aplicacion instalada
 function isAppInstalled() {
   return window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true; //La segunda parte (despues de ||) es para iOS
 }
@@ -65,7 +65,7 @@ if (isAppInstalled()) {
   document.getElementById("banner-instalar")?.remove();
 }
 
-// Push enable
+// Funcion para activar las notificaciones push
 async function enablePush() {
   const fam = getFam();
   if (!fam) return alert("Primero guarda el código de familia.");
@@ -95,7 +95,7 @@ async function enablePush() {
   alert("Notificaciones activadas ✅");
 }
 
-// Render inputs
+// Funcion para renderizar los inputs de los días
 function renderInputs() {
   list.innerHTML = "";
   DIAS.forEach(dia => {
@@ -117,7 +117,7 @@ function renderInputs() {
   });
 }
 
-// Load planning
+// Funcion para cargar el planning desde el backend
 async function loadPlanning() {
   const fam = getFam();
   if (!fam) return;
@@ -143,7 +143,7 @@ async function loadPlanning() {
   }
 }
 
-// Save day
+// Funcion para guardar el valor de un día específico
 async function saveDay(dia) {
   const fam = getFam();
   if (!fam) return alert("Primero guarda el código de familia.");
@@ -174,7 +174,7 @@ async function saveDay(dia) {
   await markChangesSeen();/*Marcamos como visto porque lo acabamos de cambiar*/
 }
 
-// Realtime update from SW
+// Funcion para aplicar una actualización remota recibida desde el Service Worker
 function applyRemoteUpdate(msg) {
   if (!msg) return;
 
@@ -202,7 +202,7 @@ function applyRemoteUpdate(msg) {
   markChangesSeen();/*Marcamos como visto porque lo estamos viendo en pantalla*/
 }
 
-
+// Configura el listener para mensajes desde el Service Worker
 function setupSWMessageListener() {
   if (!("serviceWorker" in navigator)) return;
 
@@ -212,7 +212,7 @@ function setupSWMessageListener() {
   });
 }
 
-// Events
+// Evento al pulsar el botón de guardar familia
 btnSetFam.addEventListener("click", async () => {
   const v = famInput.value.trim();
   if (!v) return alert("Pega un código de familia.");
@@ -222,8 +222,10 @@ btnSetFam.addEventListener("click", async () => {
   alert("Código de familia guardado ✅");
 });
 
+// Evento al pulsar el botón de activar notificaciones
 btnPush.addEventListener("click", enablePush);
 
+// Funciones auxiliares para el modal de cambios
 function escapeHtml(s) {
   return String(s)
     .replaceAll("&", "&amp;")
@@ -233,11 +235,13 @@ function escapeHtml(s) {
     .replaceAll("'", "&#039;");
 }
 
+// Formatea una fecha ISO a formato local
 function fmtTime(iso) {
   const d = new Date(iso);
   return d.toLocaleString("es-ES", { dateStyle: "short", timeStyle: "short" });
 }
 
+// Abre el modal (o ventana emergente) de cambios agrupados por día
 function openChangesModalGrouped(changes, onClose) {
   const modal = document.getElementById("changesModal");
   const body = document.getElementById("changesBody");
@@ -299,7 +303,7 @@ function openChangesModalGrouped(changes, onClose) {
   okBtn.addEventListener("click", close);
 }
 
-
+// Comprueba si hay cambios no vistos al cargar la app
 async function checkChangesOnLoad() {
   const fam = getFam();
   if (!fam) return;
@@ -321,10 +325,8 @@ async function checkChangesOnLoad() {
   }
 
   if ((j.count || 0) > 0) {
-    // (3) Marcado visto perfecto (usamos el último created_at real)
     const lastTs = j.changes[j.changes.length - 1]?.created_at;
 
-    // (2C) Usar el modal agrupado
     openChangesModalGrouped(j.changes, async () => {
       await fetch(`${API_BASE}/api/changesSeen`, {
         method: "POST",
@@ -356,7 +358,7 @@ async function markChangesSeen(seenAt) {
   }).catch(console.error);
 }
 
-// Init
+// Inicialización de la app
 (async function init() {
   renderInputs();
   setupSWMessageListener();
