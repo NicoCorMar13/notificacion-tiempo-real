@@ -1,5 +1,8 @@
-import { createClient } from "@supabase/supabase-js";
+// Con este archivo se marca el último cambio visto por un dispositivo específico
 
+import { createClient } from "@supabase/supabase-js";// Importa la librería de Supabase para interactuar con la base de datos
+
+// Funcion auxiliar para habilitar CORS y permitir peticiones desde el frontend
 function enableCors(req, res) {
   res.setHeader("Access-Control-Allow-Origin", process.env.ALLOWED_ORIGIN || "*");
   res.setHeader("Vary", "Origin");
@@ -7,6 +10,7 @@ function enableCors(req, res) {
   res.setHeader("Access-Control-Allow-Headers", "Content-Type");
 }
 
+// Funcion para crear el cliente de Supabase
 function getSupabase() {
   const url = process.env.SUPABASE_URL;
   const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
@@ -14,6 +18,7 @@ function getSupabase() {
   return createClient(url, key);
 }
 
+// Manejador de la API, exportador del handler por defecto(endpoint)
 export default async function handler(req, res) {
   enableCors(req, res);
   if (req.method === "OPTIONS") return res.status(200).end();
@@ -21,11 +26,12 @@ export default async function handler(req, res) {
 
   try {
     const { fam, viewerDeviceId, seenAt } = req.body || {};
-    if (!fam || !viewerDeviceId) return res.status(400).json({ error: "Missing fam/viewerDeviceId" });
+    if (!fam || !viewerDeviceId) return res.status(400).json({ error: "Missing fam/viewerDeviceId" });// Valida los parámetros necesarios
 
     const supabase = getSupabase();
     const ts = seenAt || new Date().toISOString();
 
+    // Actualiza o inserta el último visto para este viewerDeviceId
     const { error } = await supabase.from("change_seen").upsert({
       fam,
       viewer_device_id: viewerDeviceId,

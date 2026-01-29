@@ -1,3 +1,5 @@
+// Con este archivo se obtienen los cambios desde el último visto por un dispositivo específico
+
 import { createClient } from "@supabase/supabase-js";//Importa la librería de Supabase para interactuar con la base de datos
 
 // Funcion auxiliar para habilitar CORS y permitir peticiones desde el frontend
