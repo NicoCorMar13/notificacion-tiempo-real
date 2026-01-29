@@ -22,15 +22,16 @@ self.addEventListener("push", (event) => {
   };
 
   event.waitUntil((async () => {
-    // 1) Notificación
+    // Primero mandamos la notificación
     await self.registration.showNotification(title, options);
 
-    // 2) Mensaje a ventanas abiertas
+    // Despues mandamos un mensaje interno a las ventanas abiertas
     const wins = await clients.matchAll({ type: "window", includeUncontrolled: true });
 
     // DEBUG: para ver si hay ventanas abiertas y los datos recibidos
     console.log("[SW] push received. windows:", wins.length, "data:", data);
 
+    // Enviamos el mensaje a todas las ventanas abiertas
     for (const c of wins) {
       c.postMessage({
         type: data.type || "planning-update",
@@ -49,6 +50,7 @@ self.addEventListener("notificationclick", (event) => {
   const url = event.notification.data?.url || "./";
   const targetUrl = new URL(url, self.location.origin).href;
 
+  // Intentamos enfocar una ventana existente o abrir una nueva
   event.waitUntil((async () => {
     const wins = await clients.matchAll({ type: "window", includeUncontrolled: true });
     for (const c of wins) {

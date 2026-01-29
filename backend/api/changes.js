@@ -1,5 +1,6 @@
-import { createClient } from "@supabase/supabase-js";
+import { createClient } from "@supabase/supabase-js";//Importa la librería de Supabase para interactuar con la base de datos
 
+// Funcion auxiliar para habilitar CORS y permitir peticiones desde el frontend
 function enableCors(req, res) {
   res.setHeader("Access-Control-Allow-Origin", process.env.ALLOWED_ORIGIN || "*");
   res.setHeader("Vary", "Origin");
@@ -7,6 +8,7 @@ function enableCors(req, res) {
   res.setHeader("Access-Control-Allow-Headers", "Content-Type");
 }
 
+// Funcion para crear el cliente de Supabase
 function getSupabase() {
   const url = process.env.SUPABASE_URL;
   const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
@@ -14,10 +16,11 @@ function getSupabase() {
   return createClient(url, key);
 }
 
+// Manejador de la API, exportador del handler por defecto(endpoint)
 export default async function handler(req, res) {
   enableCors(req, res);
-  if (req.method === "OPTIONS") return res.status(200).end();
-  if (req.method !== "POST") return res.status(405).json({ error: "Method not allowed" });
+  if (req.method === "OPTIONS") return res.status(200).end();// Maneja peticiones OPTIONS para CORS preflight
+  if (req.method !== "POST") return res.status(405).json({ error: "Method not allowed" });// Solo permite método POST para este endpoint
 
   try {
     const { fam, viewerDeviceId, mode } = req.body || {};
@@ -25,7 +28,7 @@ export default async function handler(req, res) {
 
     const supabase = getSupabase();
 
-    // last_seen
+    // Último visto por este viewerDeviceId
     const { data: seenRow, error: seenErr } = await supabase
       .from("change_seen")
       .select("last_seen_at")
@@ -47,7 +50,7 @@ export default async function handler(req, res) {
 
     let out = (changes || []).filter(c => c.actor_device_id !== viewerDeviceId);
 
-    // mode opcional: "last_per_day" => solo la última por día
+    // "last_per_day" => solo la última por día
     if (mode === "last_per_day") {
       const map = new Map();
       for (const c of out) map.set(c.dia, c);
