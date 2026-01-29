@@ -32,13 +32,13 @@ function urlBase64ToUint8Array(base64String) {
   return out;
 }
 
-// Registramos el Service Worker
+// Funcion para registrarse el Service Worker
 async function registerSW() {
   if (!("serviceWorker" in navigator)) throw new Error("Tu navegador no soporta Service Worker");
   return navigator.serviceWorker.register("/notificacion-tiempo-real/swV3.js");
 }
 
-// Asegurar que la pestaña quede controlada por el SW (1 reload como máximo)
+// Funcion para asegurar que la pestaña quede controlada por el SW (1 reload como máximo)
 async function ensureSWControlsPage() {
   if (!("serviceWorker" in navigator)) return;
   if (navigator.serviceWorker.controller) return;
