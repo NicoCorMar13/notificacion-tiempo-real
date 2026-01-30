@@ -10,31 +10,16 @@ self.addEventListener("activate", (event) => {
 self.addEventListener("push", (event) => {
   event.waitUntil((async () => {
     let data = {};
-
     if (event.data) {
       try {
-        data = await event.data.json();      // ✅ si viene JSON
-      } catch (e) {
-        const txt = await event.data.text(); // ✅ si viene texto plano
-        data = { body: txt };                // fallback
+        data = await event.data.json();
+      } catch {
+        data = { body: await event.data.text() };
       }
     }
 
-    const title = data.title || "Planning actualizado";
-    const options = {
-      body: data.body || "",
-      icon: "/notificacion-tiempo-real/icono-192.png",
-      tag: data.tag || "planing",
-      data: { url: data.url || "./" },
-      actions: [
-        { action: "open", title: "Abrir App", icon: "/notificacion-tiempo-real/icono-192.png" }
-      ],
-    };
-
-    await self.registration.showNotification(title, options);
-
+    // 1️⃣ SIEMPRE enviamos el mensaje a las ventanas abiertas
     const wins = await self.clients.matchAll({ type: "window", includeUncontrolled: true });
-
     for (const c of wins) {
       c.postMessage({
         type: data.type || "planning-update",
@@ -44,8 +29,22 @@ self.addEventListener("push", (event) => {
         url: data.url
       });
     }
+
+    // 2️⃣ La notificación es opcional
+    if (self.registration.showNotification && Notification.permission === "granted") {
+      await self.registration.showNotification(
+        data.title || "Planning actualizado",
+        {
+          body: data.body || "",
+          icon: "/notificacion-tiempo-real/icono-192.png",
+          tag: data.tag || "planing",
+          data: { url: data.url || "./" }
+        }
+      );
+    }
   })());
 });
+
 
 // Maneja el clic en la notificación
 self.addEventListener("notificationclick", (event) => {
