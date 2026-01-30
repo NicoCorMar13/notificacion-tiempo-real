@@ -20,6 +20,8 @@ self.addEventListener("push", (event) => {
 
     // 1️⃣ SIEMPRE enviamos el mensaje a las ventanas abiertas
     const wins = await self.clients.matchAll({ type: "window", includeUncontrolled: true });
+    console.log("[SW] push ok. windows:", wins.length, "data:", data);
+    
     for (const c of wins) {
       c.postMessage({
         type: data.type || "planning-update",

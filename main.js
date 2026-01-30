@@ -189,18 +189,32 @@ function applyRemoteUpdate(msg) {
   // Acepta ambos nombres
   if (msg.type !== "planning-update") return;
 
+  console.log("[PAGE] applyRemoteUpdate IN", msg);
+
   const famLS = getFam();
   const famUI = famInput?.value?.trim() || "";
   const famActive = famLS || famUI;
 
-  if (msg.fam && famActive && msg.fam !== famActive) return;
+  if (msg.fam && famActive && msg.fam !== famActive) {
+    console.log("[PAGE] IGNORADO por fam:", msg.fam, "!=", famActive);
+    return;
+  }
 
-  if (!msg.dia || !DIAS.includes(msg.dia)) return;
+  if (!msg.dia || !DIAS.includes(msg.dia)) {
+    console.log("[PAGE] IGNORADO por dia inválido:", msg.dia);
+    return;
+  }
 
   const el = document.getElementById(msg.dia);
-  if (!el) return;
+  if (!el) {
+    console.log("[PAGE] IGNORADO: no existe input con id:", msg.dia);
+    return;
+  }
 
-  if (document.activeElement === el) return;
+  if (document.activeElement === el) {
+    console.log("[PAGE] IGNORADO: el input está siendo editado ahora mismo.");
+    return;
+  }
 
   el.value = String(msg.value ?? "");
 
