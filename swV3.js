@@ -69,3 +69,6 @@ self.addEventListener("notificationclick", (event) => {
     await clients.openWindow(targetUrl);
   })());
 });
+
+console.log("[SW] windows:", wins.map(w => w.url));
+
