@@ -75,10 +75,18 @@ async function enablePush() {
   const perm = await Notification.requestPermission();
   if (perm !== "granted") return alert("Permiso de notificaciones denegado.");
 
-  const sub = await reg.pushManager.subscribe({
+  let sub;
+  try {
+
+    sub = await reg.pushManager.subscribe({
     userVisibleOnly: true,
     applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY)
-  });
+    });
+  } catch (e) {
+    console.error("push subscribe FAILED:", e);
+    alert("No se ha podido subscribir a las notificaciones (mira la consola).");
+    return;
+  }
 
   const r = await fetch(`${API_BASE}/api/subscribe`, {
     method: "POST",
