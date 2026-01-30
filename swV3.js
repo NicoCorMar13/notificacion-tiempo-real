@@ -8,30 +8,33 @@ self.addEventListener("activate", (event) => {
 
 // Maneja los eventos de push entrantes
 self.addEventListener("push", (event) => {
-  const data = event.data ? event.data.json() : {};
-
-  const title = data.title || "Planning actualizado";
-  const options = {
-    body: data.body || "",
-    icon: "/notificacion-tiempo-real/icono-192.png",
-    tag: data.tag || "planing",
-    data: { url: data.url || "./" },
-    actions: [
-      { action: "open", title: "Abrir App", icon: "/notificacion-tiempo-real/icono-192.png" }
-    ],
-  };
-
   event.waitUntil((async () => {
-    // Primero mandamos la notificación
+    let data = {};
+
+    if (event.data) {
+      try {
+        data = await event.data.json();      // ✅ si viene JSON
+      } catch (e) {
+        const txt = await event.data.text(); // ✅ si viene texto plano
+        data = { body: txt };                // fallback
+      }
+    }
+
+    const title = data.title || "Planning actualizado";
+    const options = {
+      body: data.body || "",
+      icon: "/notificacion-tiempo-real/icono-192.png",
+      tag: data.tag || "planing",
+      data: { url: data.url || "./" },
+      actions: [
+        { action: "open", title: "Abrir App", icon: "/notificacion-tiempo-real/icono-192.png" }
+      ],
+    };
+
     await self.registration.showNotification(title, options);
 
-    // Despues mandamos un mensaje interno a las ventanas abiertas
-    const wins = await clients.matchAll({ type: "window", includeUncontrolled: true });
+    const wins = await self.clients.matchAll({ type: "window", includeUncontrolled: true });
 
-    // DEBUG: para ver si hay ventanas abiertas y los datos recibidos
-    console.log("[SW] push received. windows:", wins.length, "data:", data);
-
-    // Enviamos el mensaje a todas las ventanas abiertas
     for (const c of wins) {
       c.postMessage({
         type: data.type || "planning-update",
