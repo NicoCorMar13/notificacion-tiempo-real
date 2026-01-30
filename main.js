@@ -200,6 +200,14 @@ function applyRemoteUpdate(msg) {
   setTimeout(() => el.classList.remove("highlight"), 1200);
 
   markChangesSeen();/*Marcamos como visto porque lo estamos viendo en pantalla*/
+
+  console.log("[PAGE] applyRemoteUpdate", {
+  msgFam: msg.fam,
+  famLS: getFam(),
+  famUI: famInput?.value,
+  famActive: famActive
+  });
+
 }
 
 // Configura el listener para mensajes desde el Service Worker
