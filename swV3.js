@@ -30,6 +30,8 @@ self.addEventListener("push", (event) => {
       });
     }
 
+    console.log("[SW] windows:", wins.map(w => w.url));
+
     // 2️⃣ La notificación es opcional
     try {
       if (self.registration.showNotification && Notification.permission === "granted") {
@@ -69,6 +71,4 @@ self.addEventListener("notificationclick", (event) => {
     await clients.openWindow(targetUrl);
   })());
 });
-
-console.log("[SW] windows:", wins.map(w => w.url));
 
