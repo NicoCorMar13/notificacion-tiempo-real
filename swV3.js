@@ -20,8 +20,8 @@ self.addEventListener("push", (event) => {
 
     // 1️⃣ SIEMPRE enviamos el mensaje a las ventanas abiertas
     const wins = await self.clients.matchAll({ type: "window", includeUncontrolled: true });
-    console.log("[SW] push ok. windows:", wins.length, "data:", data);
-    
+    console.log("[SW] push real recibido. wins:", wins.length, "data:", data);
+
     for (const c of wins) {
       c.postMessage({
         type: data.type || "planning-update",
@@ -31,8 +31,6 @@ self.addEventListener("push", (event) => {
         url: data.url
       });
     }
-
-    console.log("[SW] windows:", wins.map(w => w.url));
 
     // 2️⃣ La notificación es opcional
     try {
@@ -48,7 +46,7 @@ self.addEventListener("push", (event) => {
         );
       }
     } catch (e) {
-      console.error("Error mostrando la notificación:", e);
+      console.warn("Error mostrando la notificación:", e);
     }
   })());
 });
