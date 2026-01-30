@@ -31,16 +31,20 @@ self.addEventListener("push", (event) => {
     }
 
     // 2️⃣ La notificación es opcional
-    if (self.registration.showNotification && Notification.permission === "granted") {
-      await self.registration.showNotification(
-        data.title || "Planning actualizado",
-        {
-          body: data.body || "",
-          icon: "/notificacion-tiempo-real/icono-192.png",
-          tag: data.tag || "planing",
-          data: { url: data.url || "./" }
-        }
-      );
+    try {
+      if (self.registration.showNotification && Notification.permission === "granted") {
+        await self.registration.showNotification(
+          data.title || "Planning actualizado",
+          {
+            body: data.body || "",
+            icon: "/notificacion-tiempo-real/icono-192.png",
+            tag: data.tag || "planing",
+            data: { url: data.url || "./" }
+          }
+        );
+      }
+    } catch (e) {
+      console.error("Error mostrando la notificación:", e);
     }
   })());
 });
