@@ -210,12 +210,35 @@ button.x{
     z-index: 1000;
     display: flex;
     flex-direction: column;
+
+    /* Animación */
+    transform-origin: top right;
+    transform: translateY(-8px) scale(0.98);
+    opacity: 0;
+    pointer-events: none;
+    transition: transform 160ms ease, opacity 160ms ease;
+    display: flex;
+    flex-direction: column;
+}
+
+.notifPanel.open {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+    pointer-events: auto;
 }
 
 .hidden {
     display: none;
 }
-
+/* Vibración tipo “shake” en la campana */
+@keyframes bell-shake {
+    0%, 100% { transform: rotate(0); }
+    15% { transform: rotate(-12deg); }
+    30% { transform: rotate(10deg); }
+    45% { transform: rotate(-8deg); }
+    60% { transform: rotate(6deg); }
+    75% { transform: rotate(-4deg); }
+}
 
 .notifHeader{ 
     display:flex; 
@@ -242,17 +265,22 @@ button.x{
     margin-top:4px; 
 }
 
+/* Clase que dispara la animación */
+.bell.shake {
+    animation: bell-shake 380ms ease;
+}
+
 /* Móvil: el día arriba, y debajo input + botón */
 @media (max-width: 600px) {
-  .row {
-    grid-template-columns: 1fr 110px; /* input grande + botón */
-    grid-template-areas:/* Define las áreas del grid */
-      "day day"/* primera fila: día ocupa dos columnas */
-      "input btn";/* segunda fila: input y botón */
-    gap: 10px;/*Espacio entre filas y columnas*/
-  }
+    .row {
+        grid-template-columns: 1fr 110px; /* input grande + botón */
+        grid-template-areas:/* Define las áreas del grid */
+        "day day"/* primera fila: día ocupa dos columnas */
+        "input btn";/* segunda fila: input y botón */
+        gap: 10px;/*Espacio entre filas y columnas*/
+    }
 
-  .row > div:first-child { grid-area: day; }/*el primer div (día) ocupa el área day*/
-  .row input { grid-area: input; width: 100%; }/*el input ocupa el área input y todo su ancho*/
-  .row button { grid-area: btn; width: 100%; }/*el botón ocupa el área btn y todo su ancho*/
+    .row > div:first-child { grid-area: day; }/*el primer div (día) ocupa el área day*/
+    .row input { grid-area: input; width: 100%; }/*el input ocupa el área input y todo su ancho*/
+    .row button { grid-area: btn; width: 100%; }/*el botón ocupa el área btn y todo su ancho*/
 }
