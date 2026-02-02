@@ -182,6 +182,8 @@ button.x{
     border: none;
     cursor: pointer;
     z-index: 1000;
+    pointer-events: auto;
+    touch-action: manipulation;
 }
 
 /* Badge (contador rojo) */
@@ -210,15 +212,6 @@ button.x{
     z-index: 1000;
     display: flex;
     flex-direction: column;
-
-    /* Animación */
-    transform-origin: top right;
-    transform: translateY(-8px) scale(0.98);
-    opacity: 0;
-    pointer-events: none;
-    transition: transform 160ms ease, opacity 160ms ease;
-    display: flex;
-    flex-direction: column;
 }
 
 .notifPanel.open {
@@ -229,15 +222,6 @@ button.x{
 
 .hidden {
     display: none;
-}
-/* Vibración tipo “shake” en la campana */
-@keyframes bell-shake {
-    0%, 100% { transform: rotate(0); }
-    15% { transform: rotate(-12deg); }
-    30% { transform: rotate(10deg); }
-    45% { transform: rotate(-8deg); }
-    60% { transform: rotate(6deg); }
-    75% { transform: rotate(-4deg); }
 }
 
 .notifHeader{ 
