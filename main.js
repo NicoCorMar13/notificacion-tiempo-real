@@ -72,9 +72,11 @@ async function enablePush() {
 
   const reg = await registerSW();
 
+  // Pedimos permiso para notificaciones
   const perm = await Notification.requestPermission();
   if (perm !== "granted") return alert("Permiso de notificaciones denegado.");
 
+  // Nos subscribimos al push
   let sub;
   try {
 
@@ -88,12 +90,14 @@ async function enablePush() {
     return;
   }
 
+  // Enviamos la suscripción al backend
   const r = await fetch(`${API_BASE}/api/subscribe`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ fam, subscription: sub, deviceId })
   });
 
+  // Comprobamos la respuesta del envio al backend
   if (!r.ok) {
     const j = await r.json().catch(() => ({}));
     console.error(j);
@@ -322,6 +326,7 @@ function openChangesModalGrouped(changes, onClose) {
 
   modal.classList.remove("hidden");
 
+  // Manejadores de cierre
   function close() {
     modal.classList.add("hidden");
     closeBtn.removeEventListener("click", close);
@@ -344,7 +349,7 @@ async function checkChangesOnLoad() {
     body: JSON.stringify({
       fam,
       viewerDeviceId: deviceId,
-      mode: "all" // o "last_per_day" si lo mantuviste en backend
+      mode: "all"
     })
   });
 
@@ -364,14 +369,14 @@ async function checkChangesOnLoad() {
         body: JSON.stringify({
           fam,
           viewerDeviceId: deviceId,
-          seenAt: lastTs // <-- esto es la mejora (3)
+          seenAt: lastTs
         })
       }).catch(console.error);
     });
   }
 }
 
-/* Marca cambios como vistos si estamos con la aplicacion abierta. Implementado en saveDay y applyRemoteUpdate. 
+/* Funcion que marca cambios como vistos si estamos con la aplicacion abierta. Implementado en saveDay y applyRemoteUpdate. 
 Si queremos que se vea el dialogo con los cambios cuando se recargue la app quitar la llamada a esta funcion en las funciones saveDay y applyRemoteUpdate*/
 async function markChangesSeen(seenAt) {
   const fam = getFam();
@@ -383,7 +388,7 @@ async function markChangesSeen(seenAt) {
     body: JSON.stringify({
       fam,
       viewerDeviceId: deviceId,
-      seenAt // opcional
+      seenAt
     })
   }).catch(console.error);
 }
