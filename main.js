@@ -283,8 +283,6 @@ btnPush.addEventListener("click", enablePush);
 btnBell?.addEventListener("click", () => {
   notifPanel?.classList.toggle("hidden");
   renderNotifPanel();
-  // Si quieres: al abrir, marcar como leídas directamente
-  markAllNotifsRead();
 });
 
 btnNotifClose?.addEventListener("click", () => {
