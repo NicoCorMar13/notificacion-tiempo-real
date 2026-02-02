@@ -11,6 +11,21 @@
 <body>
   <h1>Planning semanal</h1>
 
+  <button id="btnBell" class="bell" type="button" aria-label="Notificaciones">
+  🔔
+    <span id="notifBadge" class="badge" style="display:none">0</span>
+  </button>
+
+  <div id="notifPanel" class="notifPanel hidden">
+    <div class="notifHeader">
+      <b>Notificaciones</b>
+      <button id="btnNotifClose" type="button">✕</button>
+    </div>
+    <div id="notifList" class="notifList"></div>
+    <button id="btnNotifMarkAll" type="button">Marcar todas como leídas</button>
+  </div>
+
+
   <div class="top">
     <span class="pill">Código familia</span>
     <input id="fam" placeholder="pega aquí el código" style="min-width:280px" />

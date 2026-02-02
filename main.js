@@ -11,6 +11,13 @@ const famInput = document.getElementById("fam");
 const btnSetFam = document.getElementById("btnSetFam");
 const btnPush = document.getElementById("btnPush");
 const list = document.getElementById("list");
+const btnBell = document.getElementById("btnBell");
+const notifBadge = document.getElementById("notifBadge");
+const notifPanel = document.getElementById("notifPanel");
+const notifList = document.getElementById("notifList");
+const btnNotifClose = document.getElementById("btnNotifClose");
+const btnNotifMarkAll = document.getElementById("btnNotifMarkAll");
+
 
 // Consultamos el codigo unico del dispositivo o lo generamos
 const deviceId =
@@ -242,6 +249,13 @@ function setupSWMessageListener() {
 
   navigator.serviceWorker.addEventListener("message", (event) => {
     console.log("[PAGE] mensaje SW:", event.data);
+    //NUEVO: si tenemos un mensaje para notificacion in-app lo mostramos
+    const msg = event.data;
+    if (msg?.type === "inapp-notif" && msg.notif) {
+      addInAppNotif(msg.notif);
+      return;
+    }
+    //==================================================
     applyRemoteUpdate(event.data);
   });
 }
@@ -253,11 +267,32 @@ btnSetFam.addEventListener("click", async () => {
   setFam(v);
   await loadPlanning();
   await checkChangesOnLoad();
+  //NUEVO: actualizamos la badge y el panel de notificaciones in-app al cambiar de familia
+  refreshBadge();
+  //==================================================
   alert("Código de familia guardado ✅");
 });
 
 // Evento al pulsar el botón de activar notificaciones
 btnPush.addEventListener("click", enablePush);
+
+//==================================================
+// NUEVO: botones campana y panel de notificaciones in-app
+//==================================================
+
+btnBell?.addEventListener("click", () => {
+  notifPanel?.classList.toggle("hidden");
+  renderNotifPanel();
+  // Si quieres: al abrir, marcar como leídas directamente
+  markAllNotifsRead();
+});
+
+btnNotifClose?.addEventListener("click", () => {
+  notifPanel?.classList.add("hidden");
+});
+
+btnNotifMarkAll?.addEventListener("click", markAllNotifsRead);
+//==================================================
 
 // Funciones auxiliares para el modal de cambios
 function escapeHtml(s) {
@@ -393,6 +428,110 @@ async function markChangesSeen(seenAt) {
   }).catch(console.error);
 }
 
+//==================================================
+// NUEVO: boton campana y panel de notificaciones in-app
+//==================================================
+
+function notifStorageKey(fam) {
+  return `notif_${fam}_${deviceId}`;
+}
+
+function loadNotifs() {
+  const fam = getFam();
+  if (!fam) return [];
+  try {
+    return JSON.parse(localStorage.getItem(notifStorageKey(fam)) || "[]");
+  } catch { return []; }
+}
+
+function saveNotifs(arr) {
+  const fam = getFam();
+  if (!fam) return;
+  localStorage.setItem(notifStorageKey(fam), JSON.stringify(arr.slice(0, 200))); // límite por seguridad
+}
+
+function countUnread(arr) {
+  return arr.reduce((acc, n) => acc + (n.read ? 0 : 1), 0);
+}
+
+function setBadge(n) {
+  if (!notifBadge) return;
+  if (n > 0) {
+    notifBadge.textContent = n > 99 ? "99+" : String(n);
+    notifBadge.style.display = "inline-flex";
+  } else {
+    notifBadge.style.display = "none";
+  }
+}
+
+function refreshBadge() {
+  const fam = getFam();
+  if (!fam) return setBadge(0);
+  const arr = loadNotifs();
+  setBadge(countUnread(arr));
+}
+
+function fmtNotifTime(iso) {
+  const d = new Date(iso);
+  return d.toLocaleString("es-ES", { dateStyle: "short", timeStyle: "short" });
+}
+
+function renderNotifPanel() {
+  if (!notifList) return;
+  const arr = loadNotifs();
+
+  // más nuevas arriba
+  const ordered = [...arr].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+
+  notifList.innerHTML = ordered.map(n => `
+    <div class="nitem ${n.read ? "" : "unread"}">
+      <div><b>${escapeHtml(n.title || "Notificación")}</b></div>
+      <div>${escapeHtml(n.body || "")}</div>
+      <div class="meta">${fmtNotifTime(n.createdAt)} ${n.dia ? "· " + escapeHtml(n.dia) : ""}</div>
+      ${n.url ? `<div class="meta"><a href="${escapeHtml(n.url)}">Abrir</a></div>` : ""}
+    </div>
+  `).join("") || `<div class="meta">No hay notificaciones.</div>`;
+}
+
+function addInAppNotif(notif) {
+  const fam = getFam();
+  if (!fam) return;
+  if (notif.fam && notif.fam !== fam) return;
+
+  const arr = loadNotifs();
+
+  // Evitar duplicados por id
+  if (notif.id && arr.some(n => n.id === notif.id)) return;
+
+  arr.push({
+    id: notif.id || (crypto.randomUUID ? crypto.randomUUID() : String(Date.now()) + Math.random()),
+    title: notif.title || "Planning actualizado",
+    body: notif.body || "",
+    dia: notif.dia || null,
+    url: notif.url || "./",
+    createdAt: notif.createdAt || new Date().toISOString(),
+    read: false
+  });
+
+  saveNotifs(arr);
+  refreshBadge();
+
+  // si el panel está abierto, re-render
+  if (notifPanel && !notifPanel.classList.contains("hidden")) {
+    renderNotifPanel();
+  }
+}
+
+function markAllNotifsRead() {
+  const fam = getFam();
+  if (!fam) return;
+  const arr = loadNotifs().map(n => ({ ...n, read: true }));
+  saveNotifs(arr);
+  refreshBadge();
+  renderNotifPanel();
+}
+//==================================================
+
 // Inicialización de la app
 (async function init() {
   renderInputs();
@@ -414,5 +553,22 @@ async function markChangesSeen(seenAt) {
     famInput.value = getFam();
     await loadPlanning();
     await checkChangesOnLoad();
+    // NUEVO: inicializamos el badge de notificaciones
+    refreshBadge();
+    //==================================================
   }
+
+  //NUEVO: inicializamos el badge de notificaciones
+  function onReturnToForeground() {
+    refreshBadge();
+    checkChangesOnLoad();
+  }
+
+  document.addEventListener("visibilitychange", () => {
+    if (!document.hidden) onReturnToForeground();
+  });
+  window.addEventListener("focus", onReturnToForeground);
+  window.addEventListener("online", onReturnToForeground);
+  //==================================================
+
 })();

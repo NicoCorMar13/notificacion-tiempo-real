@@ -72,26 +72,26 @@ button {
 }
 
 .modal{
-  position: fixed; inset: 0;
-  background: rgba(0,0,0,.45);
-  display: grid; place-items: center;
-  z-index: 9999;
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,.45);
+    display: grid; place-items: center;
+    z-index: 9999;
 }
 
 .modal-card{
-  width: min(680px, 92vw);
-  max-height: 78vh;
-  background: #fff;
-  border-radius: 14px;
-  overflow: hidden;
-  display: grid;
-  grid-template-rows: auto 1fr auto;
+    width: min(680px, 92vw);
+    max-height: 78vh;
+    background: #fff;
+    border-radius: 14px;
+    overflow: hidden;
+    display: grid;
+    grid-template-rows: auto 1fr auto;
 }
 
 .modal-head, .modal-foot{
-  padding: 12px 14px;
-  display:flex; align-items:center; justify-content: space-between;
-  border-bottom: 1px solid #eee;
+    padding: 12px 14px;
+    display:flex; align-items:center; justify-content: space-between;
+    border-bottom: 1px solid #eee;
 }
 
 .modal-foot{ 
@@ -131,12 +131,12 @@ button.x{
 }
 
 .group summary {
-  cursor: pointer;
-  padding: 10px 38px 10px 10px;
-  border: 1px solid #eee;
-  border-radius: 10px;
-  list-style: none;
-  position: relative;
+    cursor: pointer;
+    padding: 10px 38px 10px 10px;
+    border: 1px solid #eee;
+    border-radius: 10px;
+    list-style: none;
+    position: relative;
 }
 
 /* Oculta el marcador por defecto de los detalles*/
@@ -146,20 +146,20 @@ button.x{
 
 /* Flecha personalizada */
 .group summary::after {
-  content: "▾"; /* Flecha hacia la derecha */
-  position: absolute;
-  right: 12px;
-  top: 50%;
-  transform: translateY(-50%) rotate(-90deg);/*Cerrado apuntando a la derecha*/
-  opacity: .7;
-  transition: transform 0.2s ease; /* Animación suave */
-  font-size: 14px;
+    content: "▾"; /* Flecha hacia la derecha */
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%) rotate(-90deg);/*Cerrado apuntando a la derecha*/
+    opacity: .7;
+    transition: transform 0.2s ease; /* Animación suave */
+    font-size: 14px;
 }
 
 /* Cuando el grupo está abierto, rota la flecha hacia abajo */
 .group[open] summary::after {
-  transform: translateY(-50%) rotate(0deg);
-  opacity: .9;
+    transform: translateY(-50%) rotate(0deg);
+    opacity: .9;
 }
 
 .group .count { 
@@ -170,6 +170,56 @@ button.x{
 
 .group-body { 
     margin-top: 8px; 
+}
+
+.bell { 
+    position: relative;
+}
+
+.badge{
+    position:absolute; top:-6px; right:-6px;
+    min-width:18px; height:18px; padding:0 6px;
+    border-radius:999px; font-size:12px;
+    display:inline-flex; align-items:center; justify-content:center;
+    background:#e11d48; color:#fff;
+}
+
+.hidden{ 
+    display:none; 
+}
+
+.notifPanel{
+    position: fixed; right: 12px; top: 60px;
+    width: min(360px, calc(100vw - 24px));
+    max-height: 70vh; overflow:auto;
+    background:#fff; border:1px solid #ddd; border-radius:12px;
+    box-shadow: 0 10px 30px rgba(0,0,0,.15);
+    padding:10px; z-index:9999;
+}
+
+.notifHeader{ 
+    display:flex; 
+    justify-content:space-between; 
+    align-items:center; 
+    gap:10px; 
+}
+
+.notifList .nitem{ 
+    padding:10px; 
+    border-radius:10px;
+    border:1px solid #eee; 
+    margin:8px 0; 
+}
+
+.notifList .nitem.unread{ 
+    border-color:#fecaca; 
+    background:#fff1f2; 
+}
+
+.notifList .meta{ 
+    font-size:12px; 
+    opacity:.7; 
+    margin-top:4px; 
 }
 
 /* Móvil: el día arriba, y debajo input + botón */
