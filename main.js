@@ -525,11 +525,15 @@ function addInAppNotif(notif) {
 function markAllNotifsRead() {
   const fam = getFam();
   if (!fam) return;
-  const arr = loadNotifs().map(n => ({ ...n, read: true }));
-  saveNotifs(arr);
+
+  // BORRAMOS todas las notificaciones guardadas
+  saveNotifs([]);
+
+  // Actualizamos badge y panel
   refreshBadge();
   renderNotifPanel();
 }
+
 //==================================================
 
 // Inicialización de la app
