@@ -44,8 +44,8 @@ self.addEventListener("push", (event) => {
         dia: data.dia || null,
         url: data.url || "./",
         createdAt: data.createdAt || new Date().toISOString()
-      }
-  });
+        }
+      });
     }
 
     //Enviamos la notificación

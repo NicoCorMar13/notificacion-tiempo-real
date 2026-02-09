@@ -197,7 +197,6 @@ async function saveDay(dia) {
 function applyRemoteUpdate(msg) {
   if (!msg) return;
 
-  // Acepta ambos nombres
   if (msg.type !== "planning-update") return;
 
   console.log("[PAGE] applyRemoteUpdate IN", msg);
@@ -206,27 +205,32 @@ function applyRemoteUpdate(msg) {
   const famUI = famInput?.value?.trim() || "";
   const famActive = famLS || famUI;
 
+  // Si el mensaje tiene una familia y no coincide con la familia activa, lo ignoramos
   if (msg.fam && famActive && msg.fam !== famActive) {
     console.log("[PAGE] IGNORADO por fam:", msg.fam, "!=", famActive);
     return;
   }
 
+  // Si el mensaje no tiene día o el día no es válido, lo ignoramos
   if (!msg.dia || !DIAS.includes(msg.dia)) {
     console.log("[PAGE] IGNORADO por dia inválido:", msg.dia);
     return;
   }
 
   const el = document.getElementById(msg.dia);
+  // Si no existe el input correspondiente al día, lo ignoramos
   if (!el) {
     console.log("[PAGE] IGNORADO: no existe input con id:", msg.dia);
     return;
   }
 
+  // Si el input está siendo editado en este momento, lo ignoramos para no molestar al usuario
   if (document.activeElement === el) {
     console.log("[PAGE] IGNORADO: el input está siendo editado ahora mismo.");
     return;
   }
 
+  // Si el mensaje tiene un valor, lo actualizamos en el input correspondiente
   el.value = String(msg.value ?? "");
 
   el.classList.add("highlight");
@@ -249,13 +253,12 @@ function setupSWMessageListener() {
 
   navigator.serviceWorker.addEventListener("message", (event) => {
     console.log("[PAGE] mensaje SW:", event.data);
-    //NUEVO: si tenemos un mensaje para notificacion in-app lo mostramos
+    //Si tenemos un mensaje para notificacion in-app lo mostramos
     const msg = event.data;
     if (msg?.type === "inapp-notif" && msg.notif) {
       addInAppNotif(msg.notif);
       return;
     }
-    //==================================================
     applyRemoteUpdate(event.data);
   });
 }
@@ -267,9 +270,8 @@ btnSetFam.addEventListener("click", async () => {
   setFam(v);
   await loadPlanning();
   await checkChangesOnLoad();
-  //NUEVO: actualizamos la badge y el panel de notificaciones in-app al cambiar de familia
+  //Actualizamos la badge y el panel de notificaciones in-app al cambiar de familia
   refreshBadge();
-  //==================================================
   alert("Código de familia guardado ✅");
 });
 
@@ -277,7 +279,7 @@ btnSetFam.addEventListener("click", async () => {
 btnPush.addEventListener("click", enablePush);
 
 //==================================================
-// NUEVO: botones campana y panel de notificaciones in-app
+// Botones campana y panel de notificaciones in-app
 //==================================================
 
 btnBell?.addEventListener("click", () => {
@@ -427,13 +429,15 @@ async function markChangesSeen(seenAt) {
 }
 
 //==================================================
-// NUEVO: boton campana y panel de notificaciones in-app
+// Funciones boton campana y panel de notificaciones in-app
 //==================================================
 
+// Genera una clave única para almacenar las notificaciones de una familia en localStorage
 function notifStorageKey(fam) {
   return `notif_${fam}_${deviceId}`;
 }
 
+// Funciones para cargar, guardar, contar no leídas, actualizar badge, renderizar panel y añadir nueva notificación in-app
 function loadNotifs() {
   const fam = getFam();
   if (!fam) return [];
@@ -478,7 +482,6 @@ function renderNotifPanel() {
   if (!notifList) return;
   const arr = loadNotifs();
 
-  // más nuevas arriba
   const ordered = [...arr].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
 
   notifList.innerHTML = ordered.map(n => `
@@ -555,12 +558,11 @@ function markAllNotifsRead() {
     famInput.value = getFam();
     await loadPlanning();
     await checkChangesOnLoad();
-    // NUEVO: inicializamos el badge de notificaciones
+    //Inicializamos el badge de notificaciones
     refreshBadge();
-    //==================================================
   }
 
-  //NUEVO: inicializamos el badge de notificaciones
+  //Función de inicialización del badge de notificaciones
   function onReturnToForeground() {
     refreshBadge();
     checkChangesOnLoad();
