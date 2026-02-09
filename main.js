@@ -407,6 +407,7 @@ async function checkChangesOnLoad() {
           seenAt: lastTs
         })
       }).catch(console.error);
+      await loadPlaning();//Refrescamos los inputs al cerrar el modal por si hay cambios que no se han reflejado por estar el input enfocado o por cualquier otro motivo
     });
   }
 }
@@ -563,9 +564,10 @@ function markAllNotifsRead() {
   }
 
   //Función de inicialización del badge de notificaciones
-  function onReturnToForeground() {
+  async function onReturnToForeground() {
     refreshBadge();
-    checkChangesOnLoad();
+    await loadPlanning();
+    await checkChangesOnLoad();
   }
 
   document.addEventListener("visibilitychange", () => {
