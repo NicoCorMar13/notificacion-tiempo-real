@@ -200,6 +200,7 @@ function applyRemoteUpdate(msg) {
   if (msg.type !== "planning-update") return;
 
   console.log("[PAGE] applyRemoteUpdate IN", msg);
+  alert("Actualizacion remota recibida");
 
   const famLS = getFam();
   const famUI = famInput?.value?.trim() || "";
@@ -261,6 +262,7 @@ function setupSWMessageListener() {
     }
     applyRemoteUpdate(event.data);
   });
+  alert("Mensaje recibido");
 }
 
 // Evento al pulsar el botón de guardar familia
