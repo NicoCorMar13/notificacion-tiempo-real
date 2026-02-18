@@ -125,10 +125,10 @@ export default async function handler(req, res) {
 
     await Promise.all(tasks);//Espera a que todas las notificaciones se envíen
 
-    /* Elimina las suscripciones inválidas
+    // Elimina las suscripciones inválidas
     if (toDelete.length) {
       await supabase.from("subscriptions").delete().in("endpoint", toDelete);
-    }*/
+    }
 
     return res.status(200).json({ ok: true });//Responde con éxito si todo va bien
   } catch (e) {//Manejo de errores generales
